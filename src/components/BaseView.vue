@@ -1,56 +1,22 @@
 <template>
-  <v-app
-    height="415px"
-    dark
-    id="e3"
-    standalone
-  >
-    <v-navigation-drawer
-      class="pb-0"
-      persistent
-      absolute
-      height="100%"
-      clipped
-      enable-resize-watcher
-      v-model="drawer"
-    >
+  <v-app height="415px" dark id="e3" standalone >
+    <v-navigation-drawer class="pb-0" persistent absolute height="100%" clipped enable-resize-watcher v-model="drawer" >
       <v-list dense >
+        <v-subheader class="mt-3 grey--text text--darken-1">CAMADAS</v-subheader>
         <v-list-tile v-for="(layer, index) in layers" :key="index" >
           <v-list-tile-action>
             <v-btn icon @click.native="remove_layer_from_layers(layer)">
               <v-icon dark>delete </v-icon>
             </v-btn>
-
           </v-list-tile-action>
           <v-list-tile-content>
                 <v-switch  v-model="layer.enabled" dark @change="changedCheckbox(layer)"></v-switch>
           </v-list-tile-content>
-
           <v-list-tile-content>
               {{ layer.short_name()}}
           </v-list-tile-content>
         </v-list-tile>
         <v-subheader class="mt-3 grey--text text--darken-1">SUBSCRIPTIONS</v-subheader>
-        <v-list>
-          <v-list-tile v-for="item in items2" :key="item" avatar>
-            <v-list-tile-avatar>
-              <img :src="`https://randomuser.me/api/portraits/men/${item.picture}.jpg`" alt="">
-            </v-list-tile-avatar>
-            <v-list-tile-title v-text="item.text"></v-list-tile-title>
-          </v-list-tile>
-        </v-list>
-        <v-list-tile class="mt-3">
-          <v-list-tile-action>
-            <v-icon class="grey--text text--darken-1">add_circle_outline</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title class="grey--text text--darken-1">Browse Channels</v-list-tile-title>
-        </v-list-tile>
-        <v-list-tile>
-          <v-list-tile-action>
-            <v-icon class="grey--text text--darken-1">settings</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title class="grey--text text--darken-1">Manage Subscriptions</v-list-tile-title>
-        </v-list-tile>
       </v-list>
     </v-navigation-drawer>
     <v-toolbar class="cyan">
