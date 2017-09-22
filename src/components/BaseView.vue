@@ -139,19 +139,30 @@
             let an_url = ev.target.value;
             this.loadLayer(an_url);
         },
+        getResource(an_url) {
+          return axios.get(an_url);
+        },
+        optionsResource(an_url) {
+          return axios.options(an_url);
+        },
         loadLayer(an_url) {
         if (this.layers_includes(an_url))
               return;
-            axios.get(an_url).then(response => {
-              let a_layer = new Layer();
-              a_layer.enabled = true;
-              a_layer.json = response.data;
-              a_layer.url = an_url;
-
-              //L.geoJSON(a_layer.json).addTo(map);
-              this.layers.push(a_layer);
-              this.add_layer(a_layer);
-            });
+        axios.all([this.getResource(an_url), this.optionsResource(an_url)])
+              .then(axios.spread((response_get, response_options)=> {
+                let a_layer = new Layer();
+                a_layer.enabled = true;
+                a_layer.json = response_get.data;
+                a_layer.url = an_url;
+                //L.geoJSON(a_layer.json).addTo(map);
+                this.layers.push(a_layer);
+                this.add_layer(a_layer);
+                a_layer.options_response = response_options.data;
+                console.log(a_layer);
+              }))
+              .catch(error => {
+                console.log(error);
+              });
 
         },
         changedCheckbox(a_layer) {
