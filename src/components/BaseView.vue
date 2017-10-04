@@ -34,7 +34,7 @@
     </v-toolbar>
     <main>
 
-          <div id="map"></div>
+          <div id="map" @clike="clickedOnMap"></div>
     </main>
 
   </v-app>
@@ -44,6 +44,12 @@
   import {Layer} from './options';
 
   var map;
+  function onEachFeature (feature, layer) {
+    console.log(feature.properties);
+     if (feature.properties && feature.properties.popupContent)
+         layer.bindPopup(feature.properties.popupContent);
+
+ };
   export default {
 
       data: () => ({
@@ -67,10 +73,18 @@
         ]
       }),
       methods: {
+        clickedOnMap() {
+          alert('alerta');
+        },
+
         add_layer(a_layer) {
           //this.layers.push(a_layer);
           a_layer.leaflet_layer = L.geoJSON().addTo(map);
+
+          a_layer.leaflet_layer.bindPopup();
           a_layer.leaflet_layer.addData(a_layer.json);
+          a_layer.leaflet_layer.options.onEachFeature= this.onEachFeature;
+
         },
         remove_layer(a_layer) {
           a_layer.leaflet_layer.remove();
