@@ -71,7 +71,6 @@
         },
         add_layer(a_layer) {
           //this.layers.push(a_layer);
-
           a_layer.leaflet_layer = L.geoJson(a_layer.json, {onEachFeature: onEachFeature}).addTo(map);
 
         },
@@ -79,7 +78,6 @@
           a_layer.leaflet_layer.remove();
         },
         remove_layer_from_layers(a_layer) {
-          console.log(a_layer);
           let index = this.layers.indexOf(a_layer);
           if (index > -1) {
             this.remove_layer(a_layer);
@@ -123,12 +121,11 @@
                 this.layers.push(a_layer);
                 this.add_layer(a_layer);
                 a_layer.options_response = response_options.data;
-                console.log(a_layer);
+
               }))
               .catch(error => {
                 console.log(error);
               });
-
         },
         changedCheckbox(a_layer) {
 
