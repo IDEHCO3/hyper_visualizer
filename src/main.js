@@ -3,7 +3,7 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify';
 import App from './App';
-
+import('../node_modules/vuetify/dist/vuetify.min.css') // Ensure you are using css-loader
 Vue.config.productionTip = false;
 Vue.use(Vuetify);
 

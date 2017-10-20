@@ -21,9 +21,6 @@
     </v-navigation-drawer>
     <v-toolbar class="cyan">
       <v-toolbar-title>
-        <v-btn fab small class="black accent-2" bottom left relative style="margin-top: 30px"  @click.native="optionsBtnClicked" >
-            <v-icon>add</v-icon>
-        </v-btn>
         <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       </v-toolbar-title>
       <v-spacer></v-spacer>
@@ -33,22 +30,26 @@
       </v-btn>
     </v-toolbar>
     <main>
-
-          <div id="map" @clike="clickedOnMap"></div>
+          <div id="map"></div>
     </main>
 
   </v-app>
 </template>
 <script>
   import axios from 'axios';
+  import leaflet from 'leaflet';
   import {Layer} from './options';
 
   var map;
   function onEachFeature (feature, layer) {
-    console.log(feature.properties);
-     if (feature.properties && feature.properties.popupContent)
-         layer.bindPopup(feature.properties.popupContent);
 
+     if (feature.properties) {
+       let result = '';
+       for (const [property_name, property_value] of Object.entries(feature.properties)) {
+         result += "<p>" + property_name + ": " + property_value + "</p>";
+       }
+       layer.bindPopup(result);
+     }
  };
   export default {
 
@@ -56,34 +57,22 @@
         drawer: true,
         json: null,
         urlSearched: '',
-        layers: [],
-        items: [
-          { icon: 'trending_up', text: 'Most Popular' },
-          { icon: 'subscriptions', text: 'Subscriptions' },
-          { icon: 'history', text: 'History' },
-          { icon: 'featured_play_list', text: 'Playlists' },
-          { icon: 'watch_later', text: 'Watch Later' }
-        ],
-        items2: [
-          { picture: 28, text: 'Joseph' },
-          { picture: 38, text: 'Apple' },
-          { picture: 48, text: 'Xbox Ahoy' },
-          { picture: 58, text: 'Nokia' },
-          { picture: 78, text: 'MKBHD' },
-        ]
+        layers: []
       }),
       methods: {
-        clickedOnMap() {
-          alert('alerta');
-        },
 
-        add_layer(a_layer) {
+        add_layerOLD(a_layer) {
           //this.layers.push(a_layer);
           a_layer.leaflet_layer = L.geoJSON().addTo(map);
-
           a_layer.leaflet_layer.bindPopup();
           a_layer.leaflet_layer.addData(a_layer.json);
           a_layer.leaflet_layer.options.onEachFeature= this.onEachFeature;
+
+        },
+        add_layer(a_layer) {
+          //this.layers.push(a_layer);
+
+          a_layer.leaflet_layer = L.geoJson(a_layer.json, {onEachFeature: onEachFeature}).addTo(map);
 
         },
         remove_layer(a_layer) {
@@ -104,10 +93,6 @@
                 return true;
           }
           return false;
-
-        },
-        optionsBtnClicked() {
-          console.log('options clicked');
         },
         searchBtnClicked() {
           console.log(this.urlSearched);

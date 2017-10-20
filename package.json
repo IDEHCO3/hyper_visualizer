@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
+    "leaflet": "^1.2.0",
     "vue": "^2.3.3",
-    "vue2-leaflet": "0.0.51",
     "vuetify": "^0.13.1"
   },
   "devDependencies": {
