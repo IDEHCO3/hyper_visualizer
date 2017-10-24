@@ -43,14 +43,16 @@ export  class supportedAttribute {
       this.url = url;
       this.options_response = options_response;
       this.leaflet_layer = leaflet_layer;
-      this.optionsLayer = null;
-
+      this.optionsLayer = [];
     }
-    short_name() {
+
+     short_name() {
       let arr_url = this.url.split('/');
       let size_arr = arr_url.length;
       if (arr_url[size_arr-1] == "")
-        return arr_url[size_arr-2];
-      return arr_url[size_arr-1];
+        return arr_url[size_arr-2].toUpperCase();
+      return arr_url[size_arr-1].toUpperCase();
     }
+
+  
   }

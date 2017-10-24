@@ -13,7 +13,7 @@
     "axios": "^0.16.2",
     "leaflet": "^1.2.0",
     "vue": "^2.3.3",
-    "vuetify": "^0.13.1"
+    "vuetify": "^0.16.9"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
