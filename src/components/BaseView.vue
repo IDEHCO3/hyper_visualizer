@@ -16,6 +16,22 @@
                     <v-icon dark>zoom_in </v-icon>
                   </v-btn>
                 </v-list-tile-action>
+                <v-list-tile-action>
+                  <v-menu offset-x :close-on-content-click="false" >
+                    <v-btn icon slot="activator" >
+                      <v-icon color="indigo accent-4">invert_colors</v-icon>
+                    </v-btn>
+                    <v-card dark>
+                      <v-card-actions>
+                        <input dark type="text" v-model="colorValue"> </input>
+                        <v-spacer></v-spacer>
+                        <v-btn icon color="primary" flat @click.native="change_color(layer)">
+                          <v-icon >input</v-icon>
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-menu>
+                </v-list-tile-action>
                 <v-list-tile-content>
                       <v-switch color="cyan accent-2" v-model="layer.enabled" dark @change="changedCheckbox(layer)"></v-switch>
                 </v-list-tile-content>
@@ -101,7 +117,7 @@
 
   import axios from 'axios';
   import leaflet from 'leaflet';
-  import 'Leaflet.Coordinates/dist/Leaflet.Coordinates-0.1.5.min.js';
+  import  'Leaflet.Coordinates/dist/Leaflet.Coordinates-0.1.5.min.js';
   import {Layer} from './options';
   import {OptionsLayer} from './options';
 
@@ -151,6 +167,7 @@
         drawer: true,
         json: null,
         optionValue: '',
+        colorValue: 'black',
         urlSearched: '',
         layers: [],
       }),
@@ -175,6 +192,7 @@
           a_layer.leaflet_layer = L.geoJson(a_layer.json, {onEachFeature: onEachFeature}).addTo(map);
 
         },
+
         remove_layer(a_layer) {
           a_layer.leaflet_layer.remove();
         },
@@ -182,6 +200,17 @@
 
           let layers_bounds = layer.leaflet_layer.getBounds();
           map.fitBounds(layers_bounds);
+
+        },
+        change_color(layer) {
+
+          layer.leaflet_layer.setStyle({
+              weight: 5,
+              color: this.colorValue, //'#666',
+              dashArray: '',
+              fillOpacity: 0.7
+          });
+
 
         },
         remove_layer_from_layers(a_layer) {
