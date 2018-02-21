@@ -11,6 +11,11 @@
                     <v-icon dark>delete </v-icon>
                   </v-btn>
                 </v-list-tile-action>
+                <v-list-tile-action>
+                  <v-btn icon @click.native="zoom_to_layer(layer)">
+                    <v-icon dark>zoom_in </v-icon>
+                  </v-btn>
+                </v-list-tile-action>
                 <v-list-tile-content>
                       <v-switch color="cyan accent-2" v-model="layer.enabled" dark @change="changedCheckbox(layer)"></v-switch>
                 </v-list-tile-content>
@@ -37,7 +42,7 @@
                         <v-list-tile-content>
                           <v-list-tile-title v-text="option['hydra:operation'].toUpperCase()" ></v-list-tile-title>
                         </v-list-tile-content>
- 
+
                         <v-tooltip left>
                           <v-btn icon slot="activator">
                             <v-icon color="cyan lighten-4">info</v-icon>
@@ -92,18 +97,44 @@
   </v-app>
 </template>
 <script>
+  import 'Leaflet.Coordinates/dist/Leaflet.Coordinates-0.1.5.css';
+
   import axios from 'axios';
   import leaflet from 'leaflet';
+  import 'Leaflet.Coordinates/dist/Leaflet.Coordinates-0.1.5.min.js';
   import {Layer} from './options';
   import {OptionsLayer} from './options';
 
   var optionStyle = {
-          "color": "#6666ff",
-          "weight": 5,
+          "color": "#ff66ff",
+          "weight": 15,
           "opacity": 0.45
       };
 
   var map;
+  var boud;
+
+  function getColor(d) {
+    return d > 1000 ? '#800026' :
+           d > 500  ? '#BD0026' :
+           d > 200  ? '#E31A1C' :
+           d > 100  ? '#FC4E2A' :
+           d > 50   ? '#FD8D3C' :
+           d > 20   ? '#FEB24C' :
+           d > 10   ? '#FED976' :
+                      '#FFEDA0';
+}
+  function style(feature) {
+    return {
+        fillColor: getColor(1000),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    };
+  }
+
   function onEachFeature (feature, layer) {
 
      if (feature.properties) {
@@ -113,6 +144,7 @@
        }
        layer.bindPopup(result);
      }
+
  };
   export default {
       data: () => ({
@@ -138,14 +170,6 @@
             this.layers[index].optionsLayer = [];
         },
 
-        add_layerOLD(a_layer) {
-          //this.layers.push(a_layer);
-          a_layer.leaflet_layer = L.geoJSON().addTo(map);
-          a_layer.leaflet_layer.bindPopup();
-          a_layer.leaflet_layer.addData(a_layer.json);
-          a_layer.leaflet_layer.options.onEachFeature= this.onEachFeature;
-
-        },
         add_layer(a_layer) {
           //this.layers.push(a_layer);
           a_layer.leaflet_layer = L.geoJson(a_layer.json, {onEachFeature: onEachFeature}).addTo(map);
@@ -153,6 +177,12 @@
         },
         remove_layer(a_layer) {
           a_layer.leaflet_layer.remove();
+        },
+        zoom_to_layer(layer) {
+
+          let layers_bounds = layer.leaflet_layer.getBounds();
+          map.fitBounds(layers_bounds);
+
         },
         remove_layer_from_layers(a_layer) {
           let index = this.layers.indexOf(a_layer);
@@ -213,11 +243,22 @@
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+        let bounds = new L.LatLngBounds(new L.LatLng(-38, -70), new L.LatLng(0, -30));
+		    map.fitBounds(bounds);
+        //L.control.coordinates().addTo(map);
+        L.control.coordinates({
+          position:'bottomright',
+          decimals:2,
+    			decimalSeperator:',',
+    			labelTemplateLat:'Latitude: {y}',
+    			labelTemplateLng:'Longitude: {x}',
+          useLatLngOrder:true
+      }).addTo(map);
       }
     }
 </script>
 <style scoped>
-  #map { 
+  #map {
     height: 93vh;
     width: 100%;
     position: relative;

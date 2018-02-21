@@ -41,7 +41,7 @@ export  class supportedAttribute {
       this.enabled = is_visible;
       this.json = json;
       this.url = url;
-      this.options_response = options_response;
+      this.options_response = (options_response === undefined)?[]:options_response ;
       this.leaflet_layer = leaflet_layer;
       this.optionsLayer = [];
     }
@@ -54,5 +54,5 @@ export  class supportedAttribute {
       return arr_url[size_arr-1].toUpperCase();
     }
 
-  
+
   }

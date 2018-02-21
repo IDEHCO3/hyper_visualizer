@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
+    "geojson-bbox": "0.0.0",
     "leaflet": "^1.2.0",
+    "leaflet.coordinates": "^0.1.5",
     "vue": "^2.3.3",
     "vuetify": "^0.16.9"
   },
