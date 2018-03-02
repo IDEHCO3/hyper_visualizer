@@ -30,7 +30,7 @@ export  class supportedAttribute {
   export class OptionsLayer {
     constructor(supportedAttributes, supportedOperations, context,  iriTemplate) {
       this.supportedAttributes = supportedAttributes;
-      this.supportedOperations = supportedOperations;
+      this.supportedOperations = supportedOperations.sort((a,b) => a['hydra:operation'] < b['hydra:operation'] ? -1 : 1);
       this.context = context;
       this.iriTemplate = iriTemplate;
     }
@@ -41,12 +41,12 @@ export  class supportedAttribute {
       this.enabled = is_visible;
       this.json = json;
       this.url = url;
-      this.options_response = (options_response === undefined)?[]:options_response ;
+      this.options_response = options_response || [];
       this.leaflet_layer = leaflet_layer;
       this.optionsLayer = [];
     }
 
-     short_name() {
+     shortName() {
       let arr_url = this.url.split('/');
       let size_arr = arr_url.length;
       if (arr_url[size_arr-1] == "")
