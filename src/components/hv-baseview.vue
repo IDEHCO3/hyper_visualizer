@@ -1,6 +1,6 @@
 <template>
   <v-app dark id="inspire">
-    <hv-nav @urlEntered="addLayer" @addOperation="addOperationLayer" @layerVisibility="changeLayerVisibility" @zoom="zoomToLayer" :layers="layers"></hv-nav>
+    <hv-nav @urlEntered="addLayer" @addOperation="addLayer" @layerVisibility="changeLayerVisibility" @removeLayer="removeLayer" @zoom="zoomToLayer" :layers="layers"></hv-nav>
     <div id="map"></div>
   </v-app>
 </template>
@@ -19,25 +19,24 @@ export default {
     map: null
   }),
   methods: {
-    addLayer (url) {
+    addLayer (url, operationName, returnInfo) {
       if (!this.alreadyIncluded(url)) {
-        loadLayer(url).then(res => {
-          const layer = res
-          layer.leaflet_layer.addTo(this.map)
-          this.layers.push(layer)
-        })
+        if(returnInfo) {
+          axios.get(url).then(res => console.log(res.data))
+        } else {
+            loadLayer(url).then(res => {
+              const layer = res
+              layer.operationName = operationName || null
+              layer.leaflet_layer.addTo(this.map)
+              this.layers.push(layer)
+            })
+        }
       }
     },
     addOperationLayer (layer, url, operationName) {
       axios.get(url).then(res => {
-        layer.optionsLayer.push({
-          layer: L.geoJSON(res.data, { style: layer.style || {
-            "color": "#32f",
-            "weight": 5,
-            "opacity": 0.45}
-          }).addTo(this.map),
-          operationName
-        })
+        console.log(res)
+        layer.optionsLayer.push({ layer: L.geoJSON(res.data).addTo(this.map), operationName })
       })
       this.optionValue = '';
     },
@@ -46,6 +45,9 @@ export default {
     },
     changeLayerVisibility (layer, visible) {
       visible ? layer.leaflet_layer.addTo(this.map) : layer.leaflet_layer.remove()
+    },
+    removeLayer (index) {
+      this.layers.splice(index, 1)
     },
     zoomToLayer (layersBounds) {
       this.map.fitBounds(layersBounds)

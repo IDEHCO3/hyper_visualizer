@@ -3,21 +3,25 @@
   <v-navigation-drawer persistent clipped enable-resize-watcher v-model="drawer" app>
 
   <v-expansion-panel expand dense >
-    <v-expansion-panel-content v-for="layer in layers" :key="layer.json.id" class="mb-2">
-      <div slot="header">{{ layer.shortName() }}</div>
+    <v-expansion-panel-content v-for="(layer, layerIndex) in layers" :key="layerIndex" class="mb-2">
+      <div slot="header">{{ layer.operationName || layer.shortName() }}</div>
+
       <v-card>
         <v-card-actions>
           <v-switch :label="layer.enabled ? 'ATIVO' : 'INATIVO'" v-model="layer.enabled" @change="changeLayerVisibility(layer)" color="cyan"/></v-switch>
-          <v-list-tile-action>
-            <v-btn icon @click.native="zoomToLayer(layer)">
-              <v-icon dark>zoom_in</v-icon>
+          <v-list-tile style="margin-top: -30px">
+            <v-btn icon @click="removeLayer(layer, layerIndex)">
+              <v-icon color="red accent-3">delete</v-icon>
             </v-btn>
-          </v-list-tile-action>
-          <v-menu offset-x :close-on-content-click="true" >
+          </v-list-tile>
+          <v-btn icon @click.native="zoomToLayer(layer)" style="margin-top: -30px">
+            <v-icon dark>zoom_in</v-icon>
+          </v-btn>
+          <v-menu offset-x :close-on-content-click="true" style="margin-top: -30px">
             <v-btn icon slot="activator" >
               <v-icon color="indigo accent-4">invert_colors</v-icon>
             </v-btn>
-            <v-card dark>
+            <v-card dark >
               <v-card-actions>
                 <hv-nav-palette :layer="layer" @selectedColor="changeLayerColor"></hv-nav-palette>
               </v-card-actions>
@@ -26,42 +30,30 @@
         </v-card-actions>
 
         <transition name="fade">
-          <v-expansion-panel popout v-if="layer.optionsLayer.length !== 0">
-            <v-expansion-panel-content class="cyan darken-2">
-              <div slot="header">Opções Ativas da camada {{ layer.shortName() }}</div>
-              <v-list dense>
-                <v-list-tile v-for="(activeOption, index) in layer.optionsLayer" :key="index">
-                  <v-list-tile-title> {{ activeOption.operationName }} </v-list-tile-title>
-                  <v-btn icon @click="removeOperation(activeOption, layer, index)">
-                    <v-icon color="red accent-3">delete</v-icon>
-                  </v-btn>
-                </v-list-tile>
-              </v-list>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </transition>
-
-        <transition name="fade">
           <v-expansion-panel popout v-show="layer.enabled">
             <v-expansion-panel-content class="cyan darken-2">
-              <div slot="header">Opções da camada {{ layer.shortName() }}</div>
+              <div slot="header">Opções da camada</div>
               <v-list dense>
                 <v-list-tile v-for="(option, index) in layer.options_response.supportedOperations" :key="index">
                   <v-list-tile-title> {{ option['hydra:operation'] }} </v-list-tile-title>
 
-                  <v-menu offset-x :close-on-content-click="false">
+                  <v-menu offset-x :close-on-content-click="false" v-if="option['hydra:expects'].length > 0">
                     <v-btn icon slot="activator">
                       <v-icon color="indigo accent-4">layers</v-icon>
                     </v-btn>
-                    <v-card dark >
+                    <v-card dark>
                       <v-card-actions>
-                        <input dark type="text" v-model="optionValue" @keyup.enter="addOperation(layer, option['hydra:operation'])"></input>
-                        <v-btn icon color="primary" flat @click.native="addOperation(option['hydra:operation'])">
+                        <input dark type="text" v-model="optionValue" @keyup.enter="addOperation(layer, option)"></input>
+                        <v-btn icon color="primary" flat @click.native="addOperation(layer, option)">
                           <v-icon>input</v-icon>
                         </v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-menu>
+
+                  <v-btn icon v-else style="left: -3px" @click.stop="addOperation(layer, option)">
+                    <v-icon color="cyan lighten-4">info</v-icon>
+                  </v-btn>
 
                 </v-list-tile>
               </v-list>
@@ -104,15 +96,11 @@ export default {
   },
   methods: {
     addOperation (layer, operation) {
-      const url = `${layer.url}${operation}/${this.optionValue}/`
-      const operationName = `Opção: ${operation} / Valor: ${this.optionValue}`
-
-      this.$emit('addOperation', layer, url, operationName)
+      const url = this.optionValue.length > 0 ? `${layer.url}${operation['hydra:operation']}/${this.optionValue}/` : `${layer.url}${operation['hydra:operation']}/`
+      const operationName = `${layer.shortName()} / ${operation['hydra:operation']} / ${this.optionValue}`
+      const returnInfo = operation["hydra:returns"].startsWith('http://schema.org/')
+      this.$emit('addOperation', url, operationName, returnInfo)
       this.optionValue = ''
-    },
-    removeOperation (activeOperation, layer, index) {
-      activeOperation.layer.remove()
-      layer.optionsLayer.splice(index, 1)
     },
     changeLayerColor (layer, color) {
       layer.leaflet_layer.setStyle({
@@ -126,13 +114,17 @@ export default {
     changeLayerVisibility (layer) {
       layer.enabled ? this.$emit('layerVisibility', layer, true) : this.$emit('layerVisibility', layer, false)
     },
+    removeLayer (layer, index) {
+      layer.leaflet_layer.remove()
+      this.$emit('removeLayer', index)
+    },
+    switchLabel (value) {
+      return value ? 'Ativo' : 'Inativo'
+    },
     urlEntered () {
       this.urlSearch = this.urlSearch.endsWith('/') ? this.urlSearch : `${this.urlSearch}/`
       this.$emit('urlEntered', this.urlSearch)
       this.urlSearch = ''
-    },
-    switchLabel (value) {
-      return value ? 'Ativo' : 'Inativo'
     },
     zoomToLayer (layer) {
       const layersBounds = layer.leaflet_layer.getBounds()
