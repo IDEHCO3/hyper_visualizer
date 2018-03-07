@@ -1,44 +1,35 @@
 <template>
   <v-app dark id="inspire">
     <hv-nav @urlEntered="addLayer" @addOperation="addLayer" @layerVisibility="changeLayerVisibility" @removeLayer="removeLayer" @zoom="zoomToLayer" :layers="layers"></hv-nav>
+    <hv-modal/>
     <div id="map"></div>
   </v-app>
 </template>
 
 <script>
-import axios from 'axios';
-import leaflet from 'leaflet';
+import axios from 'axios'
+import leaflet from 'leaflet'
 import { loadLayer } from '../utils/layerUtils.js'
-import HvNav from './hv-nav';
+import HvModal from './hv-modal'
+import HvNav from './hv-nav'
 
 export default {
-  components: { HvNav },
+  components: { HvModal, HvNav },
   data: () => ({
     drawer: true,
     layers: [],
     map: null
   }),
   methods: {
-    addLayer (url, operationName, returnInfo) {
+    addLayer (url, operationName) {
       if (!this.alreadyIncluded(url)) {
-        if(returnInfo) {
-          axios.get(url).then(res => console.log(res.data))
-        } else {
-            loadLayer(url).then(res => {
-              const layer = res
-              layer.operationName = operationName || null
-              layer.leaflet_layer.addTo(this.map)
-              this.layers.push(layer)
-            })
-        }
+        loadLayer(url).then(res => {
+          const layer = res
+          layer.operationName = operationName || null
+          layer.leaflet_layer.addTo(this.map)
+          this.layers.push(layer)
+        })
       }
-    },
-    addOperationLayer (layer, url, operationName) {
-      axios.get(url).then(res => {
-        console.log(res)
-        layer.optionsLayer.push({ layer: L.geoJSON(res.data).addTo(this.map), operationName })
-      })
-      this.optionValue = '';
     },
     alreadyIncluded (url) {
       return this.layers.some(layer => layer.url === url)

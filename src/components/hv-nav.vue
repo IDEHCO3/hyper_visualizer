@@ -98,8 +98,8 @@ export default {
     addOperation (layer, operation) {
       const url = this.optionValue.length > 0 ? `${layer.url}${operation['hydra:operation']}/${this.optionValue}/` : `${layer.url}${operation['hydra:operation']}/`
       const operationName = `${layer.shortName()} / ${operation['hydra:operation']} / ${this.optionValue}`
-      const returnInfo = operation["hydra:returns"].startsWith('http://schema.org/')
-      this.$emit('addOperation', url, operationName, returnInfo)
+      const returnInfo = operation["hydra:returns"].startsWith('http://schema.org/') // CASO A OPERAÇÃO RETORNE UM VALOR PRIMITIVO - TRUE
+      !returnInfo ? this.$emit('addOperation', url, operationName) : console.log(this)
       this.optionValue = ''
     },
     changeLayerColor (layer, color) {
@@ -109,7 +109,7 @@ export default {
         dashArray: '',
         fillOpacity: 0.5
       })
-      layer.style = { "color": color, "weight": 10, "opacity": 0.4 }
+      layer.style = { "color": color, "weight": 5, "opacity": 0.5 }
     },
     changeLayerVisibility (layer) {
       layer.enabled ? this.$emit('layerVisibility', layer, true) : this.$emit('layerVisibility', layer, false)
