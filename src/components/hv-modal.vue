@@ -1,37 +1,32 @@
 <template>
   <v-layout row justify-center>
-    <v-dialog v-model="modal" light persistent max-width="290">
-      <v-btn color="primary"  slot="activator">Open Dialog</v-btn>
+    <v-dialog v-model="getModal.openOrClose" max-width="640">
       <v-card>
-        <v-card-title class="headline">Use Google's location service?</v-card-title>
-        <v-card-text>Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat @click.native="dialog = false">Disagree</v-btn>
-          <v-btn color="green darken-1" flat @click.native="dialog = false">Agree</v-btn>
-        </v-card-actions>
+        <v-btn icon right @click="closeModal">
+          <v-icon color="red">close</v-icon>
+        </v-btn>
+        <v-card-text>{{ getModal.info }}</v-card-text>
       </v-card>
     </v-dialog>
   </v-layout>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
-  props: {
-    modal: {
-      default: false,
-      type: Boolean
-    }
-  },
   data () {
     return {
 
     }
   },
   methods: {
-    openModal () {
-      console.log('test')
+    closeModal () {
+      this.$store.commit('closeModal')
     }
+  },
+  computed: {
+    ...mapGetters(['getModal'])
   }
 }
 </script>

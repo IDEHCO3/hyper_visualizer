@@ -3,6 +3,7 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify';
 import App from './App';
+import store from './vuex';
 import Leaflet from 'leaflet';
 import 'Leaflet.Coordinates/dist/Leaflet.Coordinates-0.1.5.css';
 import 'Leaflet.Coordinates/dist/Leaflet.Coordinates-0.1.5.min.js';
@@ -15,6 +16,7 @@ Vue.use(Leaflet);
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   template: '<App/>',
   components: { App }
 })

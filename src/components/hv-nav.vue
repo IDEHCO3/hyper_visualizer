@@ -99,7 +99,7 @@ export default {
       const url = this.optionValue.length > 0 ? `${layer.url}${operation['hydra:operation']}/${this.optionValue}/` : `${layer.url}${operation['hydra:operation']}/`
       const operationName = `${layer.shortName()} / ${operation['hydra:operation']} / ${this.optionValue}`
       const returnInfo = operation["hydra:returns"].startsWith('http://schema.org/') // CASO A OPERAÇÃO RETORNE UM VALOR PRIMITIVO - TRUE
-      !returnInfo ? this.$emit('addOperation', url, operationName) : console.log(this)
+      !returnInfo ? this.$emit('addOperation', url, operationName) : this.$store.dispatch('findModalInfo', url)
       this.optionValue = ''
     },
     changeLayerColor (layer, color) {
