@@ -71,6 +71,10 @@
         <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn class="choice-btn" color="cyan lighten-1" @click.native="choiceRenderMode(renderMode)">
+        {{ renderMode.render }}
+        <v-icon>{{ renderMode.icon }}</v-icon>
+      </v-btn>
       <input type="text" v-model="urlSearch" placeholder="Enter URL here..." @keyup.enter="urlEntered"> </input>
       <v-btn icon @click.native="urlEntered">
         <v-icon>search</v-icon>
@@ -90,6 +94,7 @@ export default {
   data () {
     return {
       drawer: false,
+      renderMode: {icon: 'image', render: 'image'},
       urlSearch: '',
       optionValue: ''
     }
@@ -104,15 +109,18 @@ export default {
     },
     changeLayerColor (layer, color) {
       layer.leaflet_layer.setStyle({
-        weight: 5,
+        weight: 3,
         color: color,
         dashArray: '',
         fillOpacity: 0.5
       })
-      layer.style = { "color": color, "weight": 5, "opacity": 0.5 }
+      layer.style = { "color": color, "weight": 3, "opacity": 0.5 }
     },
     changeLayerVisibility (layer) {
       layer.enabled ? this.$emit('layerVisibility', layer, true) : this.$emit('layerVisibility', layer, false)
+    },
+    choiceRenderMode (renderMode) {
+      renderMode.render === 'vector' ? this.renderMode = {icon: 'image', render: 'image'} : this.renderMode = {icon: 'grain', render: 'vector'}
     },
     removeLayer (layer, index) {
       layer.leaflet_layer.remove()
@@ -123,7 +131,7 @@ export default {
     },
     urlEntered () {
       this.urlSearch = this.urlSearch.endsWith('/') ? this.urlSearch : `${this.urlSearch}/`
-      this.$emit('urlEntered', this.urlSearch)
+      this.$emit('urlEntered', this.renderMode.render, this.urlSearch)
       this.urlSearch = ''
     },
     zoomToLayer (layer) {
@@ -167,5 +175,8 @@ export default {
   }
   .fade-enter, .fade-leave-to {
     opacity: 0;
+  }
+  .choice-btn {
+    min-width: 139px;
   }
 </style>

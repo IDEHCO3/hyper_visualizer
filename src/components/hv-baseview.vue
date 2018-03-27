@@ -9,7 +9,7 @@
 <script>
 import axios from 'axios'
 import leaflet from 'leaflet'
-import { loadLayer } from '../utils/layerUtils.js'
+import { loadImageLayer, loadVectorLayer } from '../utils/layerUtils.js'
 import HvModal from './hv-modal'
 import HvNav from './hv-nav'
 
@@ -21,14 +21,19 @@ export default {
     map: null
   }),
   methods: {
-    addLayer (url, operationName) {
+    async addLayer (renderMode, url, operationName) {
       if (!this.alreadyIncluded(url)) {
-        loadLayer(url).then(res => {
-          const layer = res
-          layer.operationName = operationName || null
-          layer.leaflet_layer.addTo(this.map)
-          this.layers.push(layer)
-        })
+        if (renderMode === 'vector') {
+          const vectorLayer = await loadVectorLayer(url)
+          vectorLayer.operationName = operationName || null
+          vectorLayer.leaflet_layer.addTo(this.map)
+          console.log(vectorLayer.leaflet_layer)
+          this.layers.unshift(vectorLayer)
+        }
+        if (renderMode === 'image') {
+          const imageLayer = await loadImageLayer(url)
+          imageLayer.addTo(this.map)
+        }
       }
     },
     alreadyIncluded (url) {
